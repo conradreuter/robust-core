@@ -1,0 +1,49 @@
+{
+  "name": "@robust/core",
+  "version": "0.1.0-alpha",
+  "description": "TODO",
+  "author": "Conrad Reuter <jacob.conrad.reuter@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conradreuter/robust-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/conradreuter/robust-core/issues"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "robust",
+    "resilience",
+    "fault",
+    "tolerant"
+  ],
+  "scripts": {
+    "info": "npm-scripts-info",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "test-watch": "npm run test -- -w --watch-extensions ts"
+  },
+  "scripts-info": {
+    "info": "Print this info."
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/chai": "^4.0.1",
+    "@types/mocha": "^2.2.41",
+    "@types/sinon": "^2.3.2",
+    "@types/sinon-chai": "^2.7.28",
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2",
+    "npm-scripts-info": "^0.3.6",
+    "rimraf": "^2.6.1",
+    "sinon": "^2.3.8",
+    "sinon-chai": "^2.11.0",
+    "ts-node": "^3.2.0",
+    "typescript": "^2.4.1"
+  }
+}
