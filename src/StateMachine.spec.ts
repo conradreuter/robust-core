@@ -1,7 +1,7 @@
 import 'jest'
 import CancellationToken from 'cancellationToken'
 import Robust from './Robust'
-import { Attempt, Down, Up, Wait, State, StateMachine } from './StateMachine'
+import { Attempt, DEFAULT_WAIT_TIME, Down, Up, Wait, State, StateMachine } from './StateMachine'
 
 jest.useFakeTimers()
 
@@ -26,7 +26,7 @@ describe('A robust state machine', () => {
       nextState = state
       nextState.up = jest.fn()
       nextState.down = jest.fn()
-      StateMachine.prototype.setState.call(this, nextState)
+      setStateBypassingTheMock(nextState)
     }
   })
 
@@ -43,7 +43,7 @@ describe('A robust state machine', () => {
     const reason = {}
 
     beforeEach(() => {
-      StateMachine.prototype.setState.call(sm, new Down<any>(sm, reason))
+      setStateBypassingTheMock(new Down<any>(sm, reason))
     })
 
     it('should change to the Wait state when up is called', () => {
@@ -70,19 +70,19 @@ describe('A robust state machine', () => {
 
   describe('in the Wait state', () => {
 
-    const WAIT = 100
+    const WAIT_TIME = 100
     const reason = {}
 
     beforeEach(() => {
-      options.wait = () => WAIT
-      StateMachine.prototype.setState.call(sm, new Wait<any>(sm, reason))
+      options.wait = () => WAIT_TIME
+      setStateBypassingTheMock(new Wait<any>(sm, reason))
     })
 
     it('should change to the Attempt state and call up on it after the wait time has passed when up is called', () => {
       sm.state.up()
-      jest.runTimersToTime(WAIT - 1)
+      jest.runTimersToTime(WAIT_TIME - 1)
       expect(nextState).toBeNull()
-      jest.runTimersToTime(WAIT)
+      jest.runTimersToTime(WAIT_TIME)
       expect(nextState).toBeInstanceOf(Attempt)
       expect(nextState).toHaveProperty('reason', reason)
       expect(nextState.up).toBeCalled()
@@ -103,7 +103,7 @@ describe('A robust state machine', () => {
 
     it('should go into the Down state when down is called after up before the wait time has elapsed', () => {
       sm.state.up()
-      jest.runTimersToTime(WAIT - 1)
+      jest.runTimersToTime(WAIT_TIME - 1)
       sm.state.down({})
       jest.runTimersToTime(1)
       expect(nextState).toBeInstanceOf(Down)
@@ -112,12 +112,12 @@ describe('A robust state machine', () => {
     it('should not set the state twice when up is called twice', () => {
       sm.state.up()
       sm.state.up()
-      jest.runTimersToTime(WAIT) // should not throw
+      jest.runTimersToTime(WAIT_TIME) // should not throw
     })
 
     it('should not increase the wait time when up is called twice', () => {
       sm.state.up()
-      jest.runTimersToTime(WAIT - 1)
+      jest.runTimersToTime(WAIT_TIME - 1)
       sm.state.up()
       jest.runTimersToTime(1)
       expect(nextState).not.toBeNull()
@@ -146,6 +146,25 @@ describe('A robust state machine', () => {
       sm.setState(new Attempt<any>(sm, reason))
       expect(onDown).not.toBeCalled()
     })
+
+    it('should have a default wait time of zero for the first attempt', () => {
+      options.wait = null
+      sm.attempt = 0
+      sm.state.up()
+      expect(nextState).toBeNull()
+      jest.runTimersToTime(0)
+      expect(nextState).toBeInstanceOf(Attempt)
+    })
+
+    it('should have a default wait time of DEFAULT_WAIT_TIME for the subsequent attempts', () => {
+      options.wait = null
+      sm.attempt = 42
+      sm.state.up()
+      jest.runTimersToTime(DEFAULT_WAIT_TIME - 1)
+      expect(nextState).toBeNull()
+      jest.runTimersToTime(1)
+      expect(nextState).toBeInstanceOf(Attempt)
+    })
   })
 
   describe('in the Attempt state', () => {
@@ -153,7 +172,7 @@ describe('A robust state machine', () => {
     const reason = {}
 
     beforeEach(() => {
-      StateMachine.prototype.setState.call(sm, new Attempt<any>(sm, reason))
+      setStateBypassingTheMock(new Attempt<any>(sm, reason))
     })
 
     it('should attempt to bring the resource up when up is called', () => {
@@ -248,7 +267,7 @@ describe('A robust state machine', () => {
     beforeEach(() => {
       down = jest.fn()
       whenDown = new Promise<void>(resolve => resolveWhenDown = resolve)
-      StateMachine.prototype.setState.call(sm, new Up<any>(sm, resource, down, whenDown))
+      setStateBypassingTheMock(new Up<any>(sm, resource, down, whenDown))
     })
 
     it('should not change the state when up is called', () => {
@@ -278,10 +297,14 @@ describe('A robust state machine', () => {
     })
 
     it('should indicate that the resource is down when changing to the Wait state', () => {
-      const reason = {1:2}
+      const reason = {}
       sm.setState(new Wait<any>(sm, reason))
       expect(onDown).toBeCalled()
       expect(onDown.mock.calls[0][0]).toBe(reason)
     })
   })
+
+  function setStateBypassingTheMock(state: State<any>) {
+    StateMachine.prototype.setState.call(sm, state)
+  }
 })

@@ -1,7 +1,12 @@
 import CancellationToken from 'cancellationtoken'
 import Robust from './Robust'
 
-const DEFAULT_WAIT = (attempt: number) => attempt ? 3000 : 0
+/**
+ * The default wait time for any subsequent connection attempt.
+ */
+export const DEFAULT_WAIT_TIME = 3000
+
+const DEFAULT_WAIT = (attempt: number) => attempt ? DEFAULT_WAIT_TIME : 0
 
 /**
  * Manages the state of a {Robust<TResource>}.
@@ -105,7 +110,6 @@ export class Wait<TResource> extends Down<TResource> {
     const time = (this.sm.options.wait || DEFAULT_WAIT)(this.sm.attempt)
     ++this.sm.attempt
     this.timer = setTimeout(() => {
-      if (this.sm.state !== this) return
       this.sm.setState(new Attempt<TResource>(this.sm, this.reason))
       this.sm.state.up()
     }, time)
@@ -134,14 +138,14 @@ export class Attempt<TResource> extends Down<TResource> {
     ++this.sm.attempt
     const { cancel, token } = CancellationToken.create()
     this.cancel = cancel
-    const whenDown = new Promise<any>(resolve => setTimeout(() => {
+    const whenDown = new Promise<any>(resolveWhenDown => setTimeout(() => {
       try {
         this.sm.factory(
           (resource, down) => {
             this.sm.attempt = 0
             this.sm.setState(new Up<TResource>(this.sm, resource, down, whenDown))
           },
-          resolve,
+          resolveWhenDown,
           token,
         )
       } catch (reason) {
@@ -168,7 +172,6 @@ export class Up<TResource> implements State<TResource> {
     private readonly whenDown: Promise<void>,
   ) {
     this.whenDown.then(reason => {
-      if (this.sm.state !== this) return
       this.sm.setState(new Down<TResource>(this.sm, reason))
     })
   }
