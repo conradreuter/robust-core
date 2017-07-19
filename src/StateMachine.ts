@@ -1,4 +1,4 @@
-import CancellationToken from './CancellationToken'
+import CancellationToken from 'cancellationtoken'
 import Robust from './Robust'
 
 const DEFAULT_WAIT = (attempt: number) => attempt ? 3000 : 0
@@ -164,8 +164,8 @@ export class Up<TResource> implements State<TResource> {
   public constructor(
     private readonly sm: StateMachine<TResource>,
     public readonly resource: TResource,
-    public readonly down: (reason: any) => void,
-    public readonly whenDown: Promise<void>,
+    private readonly downImpl: (reason: any) => void,
+    private readonly whenDown: Promise<void>,
   ) {
     this.whenDown.then(reason => {
       if (this.sm.state !== this) return
@@ -174,5 +174,9 @@ export class Up<TResource> implements State<TResource> {
   }
 
   public up(): void {
+  }
+
+  public down(reason: any): void {
+    this.downImpl(reason)
   }
 }

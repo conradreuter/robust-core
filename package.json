@@ -1,49 +1,43 @@
 {
   "name": "@robust/core",
-  "version": "0.1.0-alpha",
+  "version": "0.0.1",
   "description": "TODO",
   "author": "Conrad Reuter <jacob.conrad.reuter@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/conradreuter/robust-core.git"
-  },
-  "bugs": {
-    "url": "https://github.com/conradreuter/robust-core/issues"
-  },
   "license": "MIT",
+  "homepage": "https://github.com/conradreuter/robust-core#readme",
+  "repository": "conradreuter/robust-core",
+  "bugs": "https://github.com/conradreuter/robust-core/issues",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist/"
   ],
   "keywords": [
-    "robust",
-    "resilience",
+    "async",
     "fault",
+    "resilience",
+    "robust",
     "tolerant"
   ],
   "scripts": {
-    "info": "npm-scripts-info",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts",
-    "test-watch": "npm run test -- -w --watch-extensions ts"
+    "test": "jest -c jest.json --coverage",
+    "watch": "jest -c jest.json --watch",
+    "info": "npm-scripts-info"
   },
   "scripts-info": {
+    "test": "Run the unit tests once with code coverage.",
+    "watch": "Run the unit tests in watch mode.",
     "info": "Print this info."
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/chai": "^4.0.1",
-    "@types/mocha": "^2.2.41",
-    "@types/sinon": "^2.3.2",
-    "@types/sinon-chai": "^2.7.28",
-    "chai": "^4.1.0",
-    "mocha": "^3.4.2",
+    "@types/jest": "^20.0.4",
+    "cancellationtoken": "^1.0.3",
+    "jest": "^20.0.4",
     "npm-scripts-info": "^0.3.6",
     "rimraf": "^2.6.1",
     "sinon": "^2.3.8",
-    "sinon-chai": "^2.11.0",
-    "ts-node": "^3.2.0",
+    "ts-jest": "^20.0.7",
     "typescript": "^2.4.1"
   }
 }

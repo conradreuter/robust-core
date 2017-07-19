@@ -1,1 +1,6 @@
+coverage/
+examples/
 src/
+.gitignore
+jest.json
+tsconfig.json

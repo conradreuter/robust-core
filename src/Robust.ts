@@ -1,4 +1,4 @@
-import CancellationToken from './CancellationToken'
+import CancellationToken from 'cancellationtoken'
 
 /**
  * Robust wrapper around a volatile resource.
@@ -150,8 +150,8 @@ namespace Robust {
     /**
      * Attempt to bring a resource up *once*.
      *
-     * @param {upCallback} up Callback for indicating that the resource is up.
-     * @param {downCallback} down Callback for indicating that the resource is down.
+     * @param up Callback for indicating that the resource is up.
+     * @param down Callback for indicating that the resource is down.
      * @param cancellationToken A cancellation token to cancel the up-bringing.
      * @returns the resource along with a method to bring it down, or an error if
      *    the resource could not be brought up.
